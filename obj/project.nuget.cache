@@ -1,0 +1,56 @@
+{
+  "version": 2,
+  "dgSpecHash": "rC7r7jS37pc=",
+  "success": true,
+  "projectFilePath": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+  "expectedPackageFiles": [
+    "/home/lucas_sileo/.nuget/packages/fluentvalidation/11.11.0/fluentvalidation.11.11.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/fluentvalidation.aspnetcore/11.3.1/fluentvalidation.aspnetcore.11.3.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/fluentvalidation.dependencyinjectionextensions/11.11.0/fluentvalidation.dependencyinjectionextensions.11.11.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/10.0.5/microsoft.aspnetcore.authentication.jwtbearer.10.0.5.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.aspnetcore.openapi/10.0.5/microsoft.aspnetcore.openapi.10.0.5.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.extensions.apidescription.server/10.0.0/microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.extensions.caching.stackexchangeredis/10.0.5/microsoft.extensions.caching.stackexchangeredis.10.0.5.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.extensions.dependencymodel/10.0.0/microsoft.extensions.dependencymodel.10.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.extensions.options.configurationextensions/10.0.5/microsoft.extensions.options.configurationextensions.10.0.5.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.identitymodel.abstractions/8.0.1/microsoft.identitymodel.abstractions.8.0.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.identitymodel.jsonwebtokens/8.0.1/microsoft.identitymodel.jsonwebtokens.8.0.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.identitymodel.logging/8.0.1/microsoft.identitymodel.logging.8.0.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.identitymodel.protocols/8.0.1/microsoft.identitymodel.protocols.8.0.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.identitymodel.protocols.openidconnect/8.0.1/microsoft.identitymodel.protocols.openidconnect.8.0.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.identitymodel.tokens/8.0.1/microsoft.identitymodel.tokens.8.0.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/microsoft.openapi/2.4.1/microsoft.openapi.2.4.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/pipelines.sockets.unofficial/2.2.8/pipelines.sockets.unofficial.2.2.8.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/scalar.aspnetcore/2.13.22/scalar.aspnetcore.2.13.22.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog/4.3.0/serilog.4.3.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.aspnetcore/10.0.0/serilog.aspnetcore.10.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.extensions.hosting/10.0.0/serilog.extensions.hosting.10.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.extensions.logging/10.0.0/serilog.extensions.logging.10.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.formatting.compact/3.0.0/serilog.formatting.compact.3.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.settings.configuration/10.0.0/serilog.settings.configuration.10.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.sinks.console/6.1.1/serilog.sinks.console.6.1.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.sinks.debug/3.0.0/serilog.sinks.debug.3.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/serilog.sinks.file/7.0.0/serilog.sinks.file.7.0.0.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/stackexchange.redis/2.12.14/stackexchange.redis.2.12.14.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/swashbuckle.aspnetcore/10.1.7/swashbuckle.aspnetcore.10.1.7.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/swashbuckle.aspnetcore.swagger/10.1.7/swashbuckle.aspnetcore.swagger.10.1.7.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/swashbuckle.aspnetcore.swaggergen/10.1.7/swashbuckle.aspnetcore.swaggergen.10.1.7.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/swashbuckle.aspnetcore.swaggerui/10.1.7/swashbuckle.aspnetcore.swaggerui.10.1.7.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/system.identitymodel.tokens.jwt/8.0.1/system.identitymodel.tokens.jwt.8.0.1.nupkg.sha512",
+    "/home/lucas_sileo/.nuget/packages/system.io.hashing/10.0.2/system.io.hashing.10.0.2.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.Extensions.Options.ConfigurationExtensions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+      "libraryId": "Microsoft.Extensions.Options.ConfigurationExtensions",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}
