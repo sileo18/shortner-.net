@@ -23,5 +23,9 @@ COPY --from=build /app/out .
 EXPOSE 5000
 EXPOSE 5001
 
+# Define ambiente de produção
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:5000
+
 # Comando de inicialização
 ENTRYPOINT ["dotnet", "UrlShortner.dll"]
