@@ -19,13 +19,19 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VM_IP }}
+          host: ${{ secrets.VM_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 30s
+          command_timeout: 10m
           script: |
+            cd /home/${{ secrets.VM_USER }}/url-shortner
             docker pull ${{ secrets.DOCKER_USER }}/url-shortner:latest
-            docker-compose up -d --force-recreate
+            docker-compose down
+            docker-compose up -d
             docker image prune -f
