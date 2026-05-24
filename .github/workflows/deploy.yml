@@ -24,14 +24,38 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VM_HOST }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          port: 22
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          timeout: 30s
-          command_timeout: 10m
+          timeout: 60s
+          command_timeout: 15m
           script: |
-            cd /home/${{ secrets.VM_USER }}/url-shortner
+            # Instala Docker Compose se não existir
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Instalando Docker Compose..."
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            
+            # Cria diretório se não existir
+            mkdir -p ~/url-shortner
+            cd ~/url-shortner
+            
+            # Clona ou atualiza o repositório
+            if [ -d .git ]; then
+              echo "Atualizando repositório..."
+              git pull origin main
+            else
+              echo "Clonando repositório..."
+              git clone https://github.com/${{ github.repository }}.git .
+            fi
+            
+            # Pull da imagem Docker
             docker pull ${{ secrets.DOCKER_USER }}/url-shortner:latest
-            docker-compose down
+            
+            # Inicia os serviços
+            docker-compose down || true
             docker-compose up -d
+            
+            # Limpa imagens antigas
             docker image prune -f
