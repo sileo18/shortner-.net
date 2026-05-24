@@ -9,6 +9,7 @@ public interface IUrlRepository
     Task<IEnumerable<string>> GetUserLinkCodesAsync(Guid userId);
     Task<IEnumerable<string>> GetUrlsByCodesAsync(IEnumerable<string> codes);
     Task<int> GetClickCountAsync(string shortCode);
+    Task<Url?> GetUrlAsync(string shortCode);
 }
 
 public class UrlRepository : IUrlRepository
@@ -42,16 +43,19 @@ public class UrlRepository : IUrlRepository
     public async Task SaveUrlAsync(Url url)
     {
        var userKey = string.Format(_userPrefix, url.UserId);
+       var metadata = JsonSerializer.Serialize(url);
 
        var batch = _db.CreateTransaction();
 
        batch.StringSetAsync($"{_shortPrefix}:{url.Id}", url.OriginalUrl!);
+       batch.StringSetAsync($"{_shortPrefix}:metadata:{url.Id}", metadata);
        batch.SetAddAsync(userKey, url.Id);
 
         if (url.ExpiresAt.HasValue)
         {
             var ttl = url.ExpiresAt.Value - DateTime.UtcNow;
             batch.KeyExpireAsync($"{_shortPrefix}:{url.Id}", ttl);
+            batch.KeyExpireAsync($"{_shortPrefix}:metadata:{url.Id}", ttl);
         }
 
         var executed = await batch.ExecuteAsync();
@@ -90,5 +94,21 @@ public class UrlRepository : IUrlRepository
     {
         var clicks = await _db.StringGetAsync($"stats:{shortCode}:clicks");
         return clicks.IsNull ? 0 : (int)clicks!;
+    }
+
+    public async Task<Url?> GetUrlAsync(string shortCode)
+    {
+        var data = await _db.StringGetAsync($"{_shortPrefix}:metadata:{shortCode}");
+
+        _logger.LogInformation("Fetching URL metadata for short code {ShortCode}", shortCode);
+
+        if (data.IsNull)
+        {
+            _logger.LogWarning("Short code {ShortCode} not found in Redis.", shortCode);
+            return null;
+        }
+
+        var url = JsonSerializer.Deserialize<Url>((string)data!);
+        return url;
     }
 }

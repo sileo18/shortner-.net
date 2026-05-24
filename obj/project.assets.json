@@ -1584,11 +1584,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+      "projectUniqueName": "/home/lucas_sileo/shortner-.net/UrlShortner.csproj",
       "projectName": "UrlShortner",
-      "projectPath": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+      "projectPath": "/home/lucas_sileo/shortner-.net/UrlShortner.csproj",
       "packagesPath": "/home/lucas_sileo/.nuget/packages/",
-      "outputPath": "/home/lucas_sileo/projetos/.net/UrlShortner/obj/",
+      "outputPath": "/home/lucas_sileo/shortner-.net/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/lucas_sileo/.nuget/NuGet/NuGet.Config"
@@ -1682,7 +1682,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.105/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.107/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

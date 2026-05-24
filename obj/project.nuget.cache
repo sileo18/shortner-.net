@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rC7r7jS37pc=",
+  "dgSpecHash": "7jYFQAcBNTw=",
   "success": true,
-  "projectFilePath": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+  "projectFilePath": "/home/lucas_sileo/shortner-.net/UrlShortner.csproj",
   "expectedPackageFiles": [
     "/home/lucas_sileo/.nuget/packages/fluentvalidation/11.11.0/fluentvalidation.11.11.0.nupkg.sha512",
     "/home/lucas_sileo/.nuget/packages/fluentvalidation.aspnetcore/11.3.1/fluentvalidation.aspnetcore.11.3.1.nupkg.sha512",
@@ -44,9 +44,9 @@
       "code": "NU1510",
       "level": "Warning",
       "message": "PackageReference Microsoft.Extensions.Options.ConfigurationExtensions will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
-      "projectPath": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+      "projectPath": "/home/lucas_sileo/shortner-.net/UrlShortner.csproj",
       "warningLevel": 1,
-      "filePath": "/home/lucas_sileo/projetos/.net/UrlShortner/UrlShortner.csproj",
+      "filePath": "/home/lucas_sileo/shortner-.net/UrlShortner.csproj",
       "libraryId": "Microsoft.Extensions.Options.ConfigurationExtensions",
       "targetGraphs": [
         "net10.0"

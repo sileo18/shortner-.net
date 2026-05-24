@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 [Route("api")]
 [ApiController]
@@ -62,7 +63,7 @@ public class UrlController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ShortenUrl([FromBody] ShortenUrlRequest request)
+    public async Task<IActionResult> ShortenUrl([FromBody] ShortenUrlRequest request, [FromServices] IOptions<AppSettings> appSettings)
     {
         if (string.IsNullOrEmpty(request.OriginalUrl))
         {
@@ -77,7 +78,13 @@ public class UrlController : ControllerBase
         }
 
         var shortCode = await _urlService.ShortenUrlAsync(request.OriginalUrl, request.UserId, request.UserPrefix);
-        return Ok(new { ShortCode = shortCode });
+        var baseUrl = appSettings.Value.BaseUrl;
+        var shareableUrl = $"{baseUrl}/{shortCode}";
+
+        return Ok(new { 
+            ShortCode = shortCode,
+            ShareableUrl = shareableUrl
+        });
     }
 
     [HttpGet("url/{shortCode}")]
@@ -95,6 +102,30 @@ public class UrlController : ControllerBase
         }
 
         return Redirect(originalUrl);
+    }
+
+    [HttpGet("url/{shortCode}/details")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetUrlDetails([FromRoute] string shortCode)
+    {
+        _logger.LogInformation("Received request to get URL details for short code: {ShortCode}", shortCode);
+
+        var url = await _urlService.GetUrlDetailsAsync(shortCode);
+
+        if (url == null)
+        {
+            return NotFound("URL not found.");
+        }
+
+        return Ok(new 
+        { 
+            url.Id,
+            url.OriginalUrl,
+            url.CreatedAt,
+            url.ExpiresAt,
+            ClickCount = await _urlService.GetClickCountAsync(shortCode)
+        });
     }
 
     [HttpGet("user/{userId}/urls")]

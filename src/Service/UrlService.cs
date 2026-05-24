@@ -7,6 +7,7 @@ public interface IUrlService
     Task<IEnumerable<string>> GetUrlsByCodesAsync(Guid userId);
     Task<int> GetClickCountAsync(string shortCode);
     Task<IEnumerable<string>> GetUserLinkCodesAsync(Guid userId);
+    Task<Url?> GetUrlDetailsAsync(string shortCode);
 }
 
 public class UrlService : IUrlService
@@ -66,5 +67,11 @@ public class UrlService : IUrlService
     public async Task<int> GetClickCountAsync(string shortCode)
     {
         return await _repository.GetClickCountAsync(shortCode);
+    }
+
+    public async Task<Url?> GetUrlDetailsAsync(string shortCode)
+    {
+        _logger.LogInformation("Fetching URL details for short code: {ShortCode}", shortCode);
+        return await _repository.GetUrlAsync(shortCode);
     }
 }

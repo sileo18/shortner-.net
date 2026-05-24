@@ -25,7 +25,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<IUrlService, UrlService>(); 
 builder.Services.AddScoped<IUrlRepository, UrlRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>(); 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
 var app = builder.Build();
 
