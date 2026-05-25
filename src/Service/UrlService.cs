@@ -8,6 +8,7 @@ public interface IUrlService
     Task<int> GetClickCountAsync(string shortCode);
     Task<IEnumerable<string>> GetUserLinkCodesAsync(Guid userId);
     Task<Url?> GetUrlDetailsAsync(string shortCode);
+    Task<bool> DeleteUrlAsync(string shortCode);
 }
 
 public class UrlService : IUrlService
@@ -73,5 +74,11 @@ public class UrlService : IUrlService
     {
         _logger.LogInformation("Fetching URL details for short code: {ShortCode}", shortCode);
         return await _repository.GetUrlAsync(shortCode);
+    }
+
+    public async Task<bool> DeleteUrlAsync(string shortCode)
+    {
+        _logger.LogInformation("Deleting short code: {ShortCode}", shortCode);
+        return await _repository.DeleteUrlAsync(shortCode);
     }
 }

@@ -162,4 +162,18 @@ public class UrlController : ControllerBase
         var codes = await _urlService.GetUserLinkCodesAsync(userId);
         return Ok(codes);
     }
+
+    [HttpDelete("url/{shortCode}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteUrl([FromRoute] string shortCode)
+    {
+        _logger.LogInformation("Received request to delete short code: {ShortCode}", shortCode);
+
+        var deleted = await _urlService.DeleteUrlAsync(shortCode);
+        if (!deleted)
+            return NotFound("Short URL not found.");
+
+        return NoContent();
+    }
 }

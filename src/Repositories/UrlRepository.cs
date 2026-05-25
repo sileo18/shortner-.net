@@ -10,6 +10,7 @@ public interface IUrlRepository
     Task<IEnumerable<string>> GetUrlsByCodesAsync(IEnumerable<string> codes);
     Task<int> GetClickCountAsync(string shortCode);
     Task<Url?> GetUrlAsync(string shortCode);
+    Task<bool> DeleteUrlAsync(string shortCode);
 }
 
 public class UrlRepository : IUrlRepository
@@ -110,5 +111,24 @@ public class UrlRepository : IUrlRepository
 
         var url = JsonSerializer.Deserialize<Url>((string)data!);
         return url;
+    }
+
+    public async Task<bool> DeleteUrlAsync(string shortCode)
+    {
+        // Busca metadata para obter o userId e remover do set do usuário
+        var url = await GetUrlAsync(shortCode);
+        if (url == null) return false;
+
+        var userKey = string.Format(_userPrefix, url.UserId);
+
+        var batch = _db.CreateTransaction();
+        batch.KeyDeleteAsync($"{_shortPrefix}:{shortCode}");
+        batch.KeyDeleteAsync($"{_shortPrefix}:metadata:{shortCode}");
+        batch.KeyDeleteAsync($"stats:{shortCode}:clicks");
+        batch.SetRemoveAsync(userKey, shortCode);
+
+        var executed = await batch.ExecuteAsync();
+        _logger.LogInformation("Deleted short code {ShortCode}: {Executed}", shortCode, executed);
+        return executed;
     }
 }

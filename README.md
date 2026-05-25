@@ -1,310 +1,200 @@
-# 🔗 URL Shortener - Fluxos e Casos de Uso
+# URL Shortener API
 
-## 📊 Diagrama Geral de Fluxos
+## Visão Geral
+Este README documenta todos os endpoints da API de encurtador de URLs e mostra exemplos de teste usando `curl`.
 
-```mermaid
-graph TD
-    A[Usuário] -->|POST /api/users| B[Criar Usuário]
-    B -->|Gera UUID| C[User Service]
-    C -->|Salva JSON no Redis| D["user:data:uuid → JSON"]
-    
-    A -->|POST /api/url/shorten| E[Encurtar URL]
-    E -->|Valida usuário| F{User existe?}
-    F -->|Não| G["❌ 404 Not Found"]
-    F -->|Sim| H[URL Service]
-    H -->|Gera shortCode| I["short:abc123"]
-    I -->|Salva URL| J["Redis String"]
-    I -->|Adiciona ao set| K["user:uuid:links"]
-    
-    A -->|GET /api/url/shortCode| L[Acessar Link]
-    L -->|Busca URL| M["short:abc123"]
-    M -->|URL encontrada?| N{Validação}
-    N -->|Sim| O["Increment stats"]
-    O -->|Redirect 302| P["https://original.com"]
-    N -->|Não| Q["❌ 404 Not Found"]
-    
-    A -->|GET /api/users/uuid| R[Ver Perfil]
-    R -->|Busca JSON| S["user:data:uuid"]
-    S -->|Retorna| T["{ Id, Username }"]
-    
-    style D fill:#90EE90
-    style J fill:#90EE90
-    style K fill:#87CEEB
-    style O fill:#FFD700
-    style P fill:#98FB98
-    style G fill:#FFB6C6
-    style Q fill:#FFB6C6
-```
+- Prefixo base da API: `/api`
+- Endpoint público de redirecionamento: `/{shortCode}`
+- O serviço gera URLs curtas e redireciona para a URL original
+- `AppSettings.BaseUrl` define a URL de retorno gerada em `POST /api/url/shorten`
 
 ---
 
-## 🎯 Casos de Uso
+## 1) Criar Usuário
+- Endpoint: `POST /api/users`
+- Descrição: cria um usuário e retorna o `userId`
 
-### 1️⃣ Criar Usuário
-
-**Endpoint:** `POST /api/users`
-
-**Request:**
+### Request
 ```json
 {
-  "username": "joão"
+  "username": "sileo"
 }
 ```
 
-**Response (201 Created):**
+### Response (201 Created)
 ```json
 {
-  "id": "da2be45b-1251-4567-9b64-3c15878afd07",
-  "username": "joão"
+  "id": "00000000-0000-0000-0000-000000000000",
+  "username": "sileo"
 }
 ```
 
-**O que acontece:**
-- ✅ Backend gera um `UUID` automaticamente
-- ✅ Armazena no Redis como **JSON String**:
-  ```
-  user:data:da2be45b-1251-4567-9b64-3c15878afd07 → 
-  {"Id":"da2be45b-1251-4567-9b64-3c15878afd07","Username":"joão"}
-  ```
-- ✅ Retorna status `201 Created` com o objeto criado
-
-**Estrutura Redis:**
-```
-Tipo: STRING (JSON)
-Chave: user:data:{userId}
-Valor: {"Id":"...", "Username":"..."}
+### curl
+```bash
+curl -X POST http://<host>:<port>/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"username":"sileo"}'
 ```
 
 ---
 
-### 2️⃣ Encurtar URL
+## 2) Buscar Usuário
+- Endpoint: `GET /api/users/{userId}`
+- Descrição: retorna os dados do usuário
 
-**Endpoint:** `POST /api/url/shorten`
+### curl
+```bash
+curl http://<host>:<port>/api/users/00000000-0000-0000-0000-000000000000
+```
 
-**Request:**
+### Response (200 OK)
 ```json
 {
-  "userId": "da2be45b-1251-4567-9b64-3c15878afd07",
-  "originalUrl": "https://www.google.com/search?q=test"
+  "id": "00000000-0000-0000-0000-000000000000",
+  "username": "sileo"
 }
 ```
 
-**Response (200 OK):**
+### Erros
+- `404 Not Found` se o usuário não existir
+
+---
+
+## 3) Encurtar URL
+- Endpoint: `POST /api/url/shorten`
+- Descrição: cria um short code para uma URL original pertencente a um usuário
+
+### Request
 ```json
 {
-  "shortCode": "abc123"
+  "userId": "00000000-0000-0000-0000-000000000000",
+  "originalUrl": "https://www.google.com",
+  "userPrefix": "sileo"
 }
 ```
 
-**Fluxo:**
-1. ✅ Valida se o usuário existe
-2. ✅ Gera um `shortCode` aleatório (6 caracteres)
-3. ✅ Armazena a URL original no Redis (com TTL de 90 dias)
-4. ✅ Adiciona o `shortCode` ao set do usuário
-
-**Estruturas criadas no Redis:**
-
-**String (URL Original):**
-```
-Tipo: STRING
-Chave: short:abc123
-Valor: "https://www.google.com/search?q=test"
-TTL: 90 dias
-```
-
-**Set (Links do usuário):**
-```
-Tipo: SET
-Chave: user:da2be45b-1251-4567-9b64-3c15878afd07:links
-Valores: {"abc123", "def456", "ghi789"}
-```
-
-**Erros possíveis:**
-- ❌ `404 Not Found` - Usuário não existe
-- ❌ `400 Bad Request` - URL vazia
-
----
-
-### 3️⃣ Acessar Link Encurtado
-
-**Endpoint:** `GET /api/url/{shortCode}`
-
-**Exemplo:** `GET /api/url/abc123`
-
-**Resposta (302 Found):**
-```
-Location: https://www.google.com/search?q=test
-```
-
-**Fluxo:**
-1. ✅ Busca a URL no Redis pela chave `short:shortCode`
-2. ✅ Se encontrar: incrementa o contador de clicks
-3. ✅ Redireciona (302) para a URL original
-4. ✅ Se não encontrar: retorna `404 Not Found`
-
-**O que muda no Redis:**
-```
-Antes:
-stats:abc123:clicks → 5
-
-Depois:
-stats:abc123:clicks → 6
-```
-
-**Sequência:**
-```mermaid
-sequenceDiagram
-    Usuário->>API: GET /api/url/abc123
-    API->>Redis: GET short:abc123
-    Redis-->>API: "https://google.com"
-    API->>Redis: INCR stats:abc123:clicks
-    Redis-->>API: 6
-    API-->>Usuário: 302 Redirect
-    Usuário->>Google: Acessa URL original
-```
-
----
-
-### 4️⃣ Ver Perfil do Usuário
-
-**Endpoint:** `GET /api/users/{userId}`
-
-**Exemplo:** `GET /api/users/da2be45b-1251-4567-9b64-3c15878afd07`
-
-**Response (200 OK):**
+### Response (200 OK)
 ```json
 {
-  "id": "da2be45b-1251-4567-9b64-3c15878afd07",
-  "username": "joão"
+  "shortCode": "sileo_abc123",
+  "shareableUrl": "https://seu-encurtador.com.br/sileo_abc123"
 }
 ```
 
-**Fluxo:**
-1. ✅ Busca a chave `user:data:{userId}` no Redis
-2. ✅ Se encontrar: retorna os dados deserializados
-3. ✅ Se não encontrar: retorna `404 Not Found`
+### curl
+```bash
+curl -X POST http://<host>:<port>/api/url/shorten \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId":"00000000-0000-0000-0000-000000000000",
+    "originalUrl":"https://www.google.com",
+    "userPrefix":"sileo"
+  }'
+```
+
+### Erros
+- `400 Bad Request` se `originalUrl` estiver vazio
+- `404 Not Found` se `userId` não existir
 
 ---
 
-### 5️⃣ Listar Todas as URLs de um Usuário
+## 4) Redirecionar Short URL
+- Endpoint: `GET /{shortCode}`
+- Descrição: redireciona para a URL original
 
-**Cenário:** Você quer listar todas as URLs que um usuário criou
-
-**Fluxo em 2 etapas:**
-
-```csharp
-// 1º: Peg tutti os shortCodes
-var codes = await _repository.GetUserLinkCodesAsync(userId);
-// Retorna: ["abc123", "def456", "ghi789"]
-
-// 2º: Busca as URLs originais
-var urls = await _repository.GetUrlsByCodesAsync(codes);
-// Retorna: ["https://google.com", "https://github.com", "https://microsoft.com"]
+### curl
+```bash
+curl -L http://<host>:<port>/sileo_abc123
 ```
 
-**Operações Redis:**
-```
-1. SMEMBERS user:uuid:links
-   → ["abc123", "def456", "ghi789"]
-
-2. MGET short:abc123 short:def456 short:ghi789
-   → ["https://google.com", "https://github.com", "https://microsoft.com"]
-```
+### Comportamento
+- Retorna `302 Found` com `Location` apontando para a URL original
+- Retorna `404 Not Found` se o short code não existir
 
 ---
 
-## 🗂️ Estrutura Completa do Redis
+## 5) Detalhes da URL
+- Endpoint: `GET /api/url/{shortCode}/details`
+- Descrição: retorna meta informações da URL encurtada
 
+### curl
+```bash
+curl http://<host>:<port>/api/url/sileo_abc123/details
 ```
-┌────────────────────────────────────────────────┐
-│           REDIS DATABASE STRUCTURE             │
-├────────────────────────────────────────────────┤
-│                                                │
-│  USERS:                                        │
-│  ├─ user:data:uuid1 (STRING - JSON)          │
-│  │  └─ {"Id":"uuid1", "Username":"joão"}     │
-│  ├─ user:data:uuid2 (STRING - JSON)          │
-│  │  └─ {"Id":"uuid2", "Username":"maria"}    │
-│  │                                            │
-│  LINKS (Short URLs):                          │
-│  ├─ short:abc123 (STRING)                    │
-│  │  └─ "https://google.com"                  │
-│  ├─ short:def456 (STRING)                    │
-│  │  └─ "https://github.com"                  │
-│  │                                            │
-│  LINK COLLECTIONS (User's Links):            │
-│  ├─ user:uuid1:links (SET)                   │
-│  │  └─ {"abc123", "def456"}                  │
-│  ├─ user:uuid2:links (SET)                   │
-│  │  └─ {"ghi789"}                            │
-│  │                                            │
-│  ANALYTICS (Click Counts):                    │
-│  ├─ stats:abc123:clicks (STRING)             │
-│  │  └─ 42                                     │
-│  ├─ stats:def456:clicks (STRING)             │
-│  │  └─ 15                                     │
-│  │                                            │
-└────────────────────────────────────────────────┘
+
+### Response (200 OK)
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "originalUrl": "https://www.google.com",
+  "createdAt": "2026-05-25T21:00:00Z",
+  "expiresAt": null,
+  "clickCount": 5
+}
 ```
+
+### Erros
+- `404 Not Found` se o short code não existir
 
 ---
 
-## 🔄 Ciclo de Vida de uma URL
+## 6) Contagem de Cliques
+- Endpoint: `GET /api/url/{shortCode}/clicks`
+- Descrição: retorna o número de cliques do short code
 
+### curl
+```bash
+curl http://<host>:<port>/api/url/sileo_abc123/clicks
 ```
-1. CRIAÇÃO
-   User cria conta
-   ↓
-   User encurta URL → shortCode criado
-   ↓
-   Redis salva: short:shortCode = URL original
-   Redis salva: user:uuid:links ← adiciona shortCode
 
-2. USO
-   Alguém acessa /api/url/shortCode
-   ↓
-   Redis incrementa: stats:shortCode:clicks += 1
-   ↓
-   Usuário é redirecionado para URL original
-
-3. EXPIRAÇÃO (90 dias)
-   Redis automaticamente remove a chave
-   ↓
-   Link fica inacessível (404 Not Found)
+### Response (200 OK)
+```json
+{
+  "shortCode": "sileo_abc123",
+  "clickCount": 5
+}
 ```
 
 ---
 
-## 📈 Tipos de Dados Redis Utilizados
+## 7) URLs do Usuário
+- Endpoint: `GET /api/user/{userId}/urls`
+- Descrição: retorna todas as URLs do usuário
 
-| Tipo | Chave | Exemplo | Uso |
-|------|-------|---------|-----|
-| **STRING** | `user:data:{uuid}` | JSON do usuário | Armazenar dados do usuário |
-| **STRING** | `short:{code}` | URL original | Armazenar URL encurtada |
-| **STRING** | `stats:{code}:clicks` | Número | Contar clicks |
-| **SET** | `user:{uuid}:links` | Coleção de codes | Lista de links do user |
+### curl
+```bash
+curl http://<host>:<port>/api/user/00000000-0000-0000-0000-000000000000/urls
+```
 
----
-
-## ✅ Validações e Erros
-
-| Operação | Validação | Erro | Status |
-|----------|-----------|------|--------|
-| Criar User | Username não vazio | Username required | `400` |
-| Encurtar URL | User existe | User not found | `404` |
-| Encurtar URL | URL não vazia | URL required | `400` |
-| Acessar Link | Link existe | Short URL not found | `404` |
-| Ver User | User existe | User not found | `404` |
+### Erros
+- `404 Not Found` se o usuário não existir
 
 ---
 
-## 🚀 Possíveis Melhorias Futuras
+## 8) Códigos de Link do Usuário
+- Endpoint: `GET /api/user/{userId}/link-codes`
+- Descrição: lista todos os short codes do usuário
 
-1. **Autenticação/Autorização** - Adicionar JWT tokens
-2. **Apenas links próprios** - Usuário só vê seus links
-3. **Analytics Dashboard** - Gráficos de clicks por link/período
-4. **Custom short codes** - Permitir usuário escolher o código
-5. **Compartilhamento** - Gerar links com permissão de leitura
-6. **Rate limiting** - Limitar requisições por usuário
-7. **Cache** - Adicionar cache em memória para links populares
-8. **Banco de dados** - Migrar Analytics para PostgreSQL (persistência)
+### curl
+```bash
+curl http://<host>:<port>/api/user/00000000-0000-0000-0000-000000000000/link-codes
+```
+
+### Erros
+- `404 Not Found` se o usuário não existir
+
+---
+
+## Notas
+- O endpoint de redirecionamento público não usa `/api`.
+- O `shareableUrl` retornado por `POST /api/url/shorten` é construído usando `AppSettings.BaseUrl`.
+- Se você expor a API em porta 80, use `http://<host>` como `BaseUrl`.
+- Em produção, use um domínio e HTTPS.
+
+---
+
+## Fluxo de Teste Rápido
+1. `POST /api/users` → cria usuário
+2. `POST /api/url/shorten` → gera `shortCode`
+3. `GET /{shortCode}` → redireciona para a URL original
+4. `GET /api/url/{shortCode}/clicks` → obtém contagem de cliques
