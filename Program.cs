@@ -28,6 +28,27 @@ builder.Services.AddScoped<IUrlRepository, UrlRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
+// ============================================================
+// Configurar CORS para aceitar o frontend em portas diferentes
+// ============================================================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy
+            .WithOrigins(
+                "http://20.243.9.229:3000",      // Frontend em produção na VM
+                "http://20.243.9.229",            // Frontend sem porta (fallback)
+                "http://localhost:3000",          // Desenvolvimento local
+                "http://localhost:5173",          // Vite dev server
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:5173"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+    );
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -38,6 +59,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// ============================================================
+// Aplicar CORS antes de UseHttpsRedirection
+// ============================================================
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
