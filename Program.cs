@@ -51,6 +51,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// ============================================================
+// Aplicar CORS PRIMEIRO (antes de qualquer outro middleware)
+// ============================================================
+app.UseCors("AllowFrontend");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -59,11 +64,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// ============================================================
-// Aplicar CORS antes de UseHttpsRedirection
-// ============================================================
-app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
