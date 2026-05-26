@@ -50,12 +50,9 @@ jobs:
               git clone https://github.com/${{ github.repository }}.git .
             fi
             
-            # Pull da imagem Docker
-            docker pull ${{ secrets.DOCKER_USER }}/url-shortner:latest
-            
-            # Inicia os serviços
+            # Inicia os serviços (--build força recompilação com o código novo)
             docker-compose down || true
-            docker-compose up -d
+            docker-compose up -d --build
             
             # Limpa imagens antigas
             docker image prune -f
